@@ -1,0 +1,37 @@
+{
+  "name": "vlad2112/yii2-sweetalert2",
+  "type": "yii2-extension",
+  "description": "Sweetalert2 integration for Yii2 framework",
+  "keywords": [
+    "yii2",
+    "sweetalert",
+    "sweetalert2",
+    "widget"
+  ],
+  "license": "BSD-3-Clause",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git clone git@bitbucket.org:vegorsky/sweetalert2.git"
+    }
+  ],
+  "support": {
+    "forum": "http://www.yiiframework.com/forum/",
+    "wiki": "http://www.yiiframework.com/wiki/"
+  },
+  "authors": [
+    {
+      "name": "vlad",
+      "email": "vladegorsky@mail.ru"
+    }
+  ],
+  "require": {
+    "yiisoft/yii2": "~2.0.0",
+    "npm-asset/sweetalert2": "~9.7.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "vlad2112\\yii2-sweetalert2\\": ""
+    }
+  }
+}
