@@ -3,6 +3,7 @@
 namespace vlad2112\sweetalert2;
 
 use Yii;
+use yii\bootstrap4\Widget as BootstrapWidget;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\web\JsExpression;
@@ -17,26 +18,26 @@ use yii\web\JsExpression;
  *
  * В контроллерах использовать код :
  * Yii::$app->session->setFlash(uniqid(SweetAlert2::FLASH_PREFIX), [
- *      'title' => 'Title',
- *      'titleText' => 'Ooooops ...',
- *      'icon' => 'error',
+ *     'title' => 'Title',
+ *     'titleText' => 'Ooooops ...',
+ *     'icon' => 'error',
  *     'showClass' => [
- *          'popup' => 'swal2-show'
- *      ],
- *      'hideClass' => [
- *          'popup' => 'swal2-hide'
- *      ],
- *      'html' =>
- *          'You can use <b>bold text</b>, ' .
- *          '<a href="//sweetalert2.github.io">links</a> ' .
- *          'and other HTML tags',
- *      'footer' => '<a href>Why do I have this issue?</a>',
+ *         'popup' => 'swal2-show'
+ *     ],
+ *     'hideClass' => [
+ *         'popup' => 'swal2-hide'
+ *     ],
+ *     'html' =>
+ *         'You can use <b>bold text</b>, ' .
+ *         '<a href="//sweetalert2.github.io">links</a> ' .
+ *         'and other HTML tags',
+ *     'footer' => '<a href>Why do I have this issue?</a>',
  * ]);
  */
-class SweetAlert2 extends \yii\bootstrap4\Widget
+class SweetAlert2 extends BootstrapWidget
 {
     const FLASH_PREFIX = 'alert2_';
-
+    const ANIMATED_CSS_CLASS = 'https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css';
     /**
      * @var array
      */
@@ -156,11 +157,21 @@ class SweetAlert2 extends \yii\bootstrap4\Widget
     ];
 
     /**
+     * Register client assets
+     */
+    protected function registerAssets()
+    {
+        $view = $this->getView();
+        SweetAlert2Asset::register($view);
+    }
+
+    /**
      * @return bool|void
      * @throws \yii\base\InvalidConfigException
      */
     public function init()
     {
+        parent::init();
         $session = Yii::$app->session;
         $flashes = $session->getAllFlashes();
 
@@ -175,6 +186,8 @@ class SweetAlert2 extends \yii\bootstrap4\Widget
         if (empty($this->flashMessages)) {
             return false;
         }
+
+        $this->registerAssets();
     }
 
 
@@ -184,14 +197,25 @@ class SweetAlert2 extends \yii\bootstrap4\Widget
     public function run()
     {
         $messArray = [];
+        $animated = false;
+
         foreach ($this->flashMessages as $userConfig) {
-            $messArray[] = ArrayHelper::merge($this->defaultConfig, $userConfig);
+            $messArrayElement = ArrayHelper::merge($this->defaultConfig, $userConfig);
+            $messArray[] = $messArrayElement;
+
+            if (!$animated) {
+                $a1 = (strpos('animated', $messArrayElement['show_class']['popup']) !== false);
+                $a2 = (strpos('animated', $messArrayElement['show_class']['popup']) !== false);
+
+                if ($a1 || $a2) {
+                    Yii::$app->view->registerCssFile(self::ANIMATED_CSS_CLASS);
+                    $animated = true;
+                }
+            }
         }
 
-        if (!empty($messArray)) {
-            $messJs = new JsExpression(Json::encode($messArray));
-            $jsCode = "Swal.queue($messJs);";
-            Yii::$app->view->registerJs($jsCode);
-        }
+        $messJs = new JsExpression(Json::encode($messArray));
+        $jsCode = "Swal.queue($messJs);";
+        Yii::$app->view->registerJs($jsCode);
     }
 }
